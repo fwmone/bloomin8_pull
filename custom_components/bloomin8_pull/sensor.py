@@ -4,7 +4,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import PERCENTAGE
 from homeassistant.helpers.entity import EntityCategory
 
-from .custom_components.bloomin8_pull.const import DOMAIN, STATE_BATTERY, STATE_LAST_SEEN
+from .const import DOMAIN, STATE_BATTERY, STATE_LAST_SEEN
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):

@@ -13,7 +13,7 @@ from pathlib import Path
 from aiohttp import web
 from homeassistant.components.http import HomeAssistantView
 
-from .custom_components.bloomin8_pull.const import DOMAIN, STATE_BATTERY, STATE_SUCCESS, STATE_LAST_SEEN, STATE_FILE
+from .const import DOMAIN, STATE_BATTERY, STATE_SUCCESS, STATE_LAST_SEEN, STATE_FILE
 
 _LOGGER = logging.getLogger(__name__)
 
