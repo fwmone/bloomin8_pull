@@ -17,7 +17,7 @@ from .const import DOMAIN, STATE_BATTERY, STATE_SUCCESS, STATE_LAST_SEEN, STATE_
 
 _LOGGER = logging.getLogger(__name__)
 
-ALLOWED_EXT = ("_opt.jpg")
+ALLOWED_EXT = ("_opt.jpg",)
 
 @property
 def icon(self):
@@ -45,12 +45,22 @@ def _write_json_sync(path: str, data: dict) -> None:
     tmp.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
     tmp.replace(p)  # atomic on POSIX
 
-class Bloomin8PullView(HomeAssistantView):
-    """Implements GET /eink_pull for Bloomin8 devices."""
+def _publish_image_sync(publish_dir: str, src_path: str, dst_path: str) -> None:
+    """Clear publish dir and copy the chosen image (sync). Called in executor."""
+    os.makedirs(publish_dir, exist_ok=True)
+    clear_publish_dir(publish_dir)
+    shutil.copyfile(src_path, dst_path)
+
+def _list_images_sync(image_dir: str, allowed_ext: tuple[str, ...]) -> list[str]:
+    return [f for f in os.listdir(image_dir) if f.endswith(allowed_ext)]
+
+
+class BLOOMIN8PullView(HomeAssistantView):
+    """Implements GET /eink_pull for BLOOMIN8 devices."""
 
     url = "/eink_pull"
     name = "api:bloomin8_pull"
-    requires_auth = False  # Bloomin8 uses X-Access-Token; we validate manually.
+    requires_auth = False  # BLOOMIN8 uses X-Access-Token; we validate manually.
 
     def __init__(self, hass, cfg: dict) -> None:
         self.hass = hass
@@ -106,10 +116,7 @@ class Bloomin8PullView(HomeAssistantView):
 
         # --- Choose a local image from cache ---
         try:
-            files = [
-                f for f in os.listdir(image_dir)
-                if f.lower().endswith(ALLOWED_EXT) and os.path.isfile(os.path.join(image_dir, f))
-            ]
+            files = await self.hass.async_add_executor_job(_list_images_sync, image_dir, ALLOWED_EXT)
         except FileNotFoundError:
             files = []
 
@@ -140,9 +147,9 @@ class Bloomin8PullView(HomeAssistantView):
 
         # Copy is safest across filesystems; very small overhead for e-ink cadence.
         try:
-            clear_publish_dir(publish_dir)
-            shutil.copyfile(src_path, dst_path)
-            
+            await self.hass.async_add_executor_job(
+                _publish_image_sync, publish_dir, src_path, dst_path
+            )
         except Exception as err:
             _LOGGER.exception("Failed to publish image %s -> %s: %s", src_path, dst_path, err)
             return web.json_response(
@@ -151,7 +158,7 @@ class Bloomin8PullView(HomeAssistantView):
             )
 
         # Build absolute base URL from the incoming request (works behind reverse proxy if headers are correct).
-        # image_url must be absolute for Bloomin8.
+        # image_url must be absolute for BLOOMIN8.
         base = f"{request.scheme}://{request.host}"
         image_url = f"{base}/local/bloomin8/{published_name}"
 
@@ -171,11 +178,11 @@ class Bloomin8PullView(HomeAssistantView):
         )
 
 class Bloomin8SignalView(HomeAssistantView):
-    """Implements GET /eink_signal for Bloomin8 devices."""
+    """Implements GET /eink_signal for BLOOMIN8 devices."""
 
     url = "/eink_signal"
     name = "api:bloomin8_signal"
-    requires_auth = False  # Bloomin8 uses X-Access-Token; we validate manually.
+    requires_auth = False  # BLOOMIN8 uses X-Access-Token; we validate manually.
 
     def __init__(self, hass, cfg: dict) -> None:
         self.hass = hass
