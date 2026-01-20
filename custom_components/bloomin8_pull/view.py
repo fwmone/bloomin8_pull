@@ -55,7 +55,7 @@ def _list_images_sync(image_dir: str, allowed_ext: tuple[str, ...]) -> list[str]
     return [f for f in os.listdir(image_dir) if f.endswith(allowed_ext)]
 
 
-class BLOOMIN8PullView(HomeAssistantView):
+class Bloomin8PullView(HomeAssistantView):
     """Implements GET /eink_pull for BLOOMIN8 devices."""
 
     url = "/eink_pull"
