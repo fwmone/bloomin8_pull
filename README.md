@@ -1,8 +1,8 @@
-# Bloomin8 Pull – Home Assistant Custom Integration
+# BLOOMIN8 Pull – Home Assistant Custom Integration
 
-`bloomin8_pull` is a custom integration for Home Assistant that allows content from a [**Bloomin8 e-ink frame**](https://www.bloomin8.com/) to be retrieved from the Home Assistant server using a pull mechanism. It implements the [Schedule Pull API](https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component/blob/main/docs/Schedule_Pull_API.md) that Bloomin8 has provided as a code example. The official [Bloomin8 integration](https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component?tab=readme-ov-file) is independent of this. It is not required for this integration, but can of course be installed independently.
+`bloomin8_pull` is a custom integration for Home Assistant that allows content from a [**BLOOMIN8 e-ink picture frame**](https://www.bloomin8.com/) to be retrieved from the Home Assistant server using a pull mechanism. It implements the [Schedule Pull API](https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component/blob/main/docs/Schedule_Pull_API.md) that BLOOMIN8 has provided as a code example. The official [BLOOMIN8 integration](https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component?tab=readme-ov-file) is independent of this. It is not required for this integration, but can of course be installed independently.
 
-The integration is aimed in particular at users who do not just want to use Bloomin8 as a passive picture frame, but want to control content, status, or image changes **automatically and context-dependently**. It is still in the very early stages of its development cycle and was created primarily out of my personal desire to be able to display images locally on the frame.
+The integration is aimed in particular at users who do not just want to use BLOOMIN8 as a passive picture frame, but want to control content, status, or image changes **automatically and context-dependently**. It is still in the very early stages of its development cycle and was created primarily out of my personal desire to be able to display images locally on the frame.
 
 ---
 
@@ -17,7 +17,7 @@ The integration is aimed in particular at users who do not just want to use Bloo
 ## 🧩 Requirements
 
 - Home Assistant **2024.12** or newer. I personally always work on the current version of Home Assistant, so I cannot guarantee compatibility with older versions.
-- The Bloomin8 frame must be able to access the Home Assistant server.
+- The BLOOMIN8 picture frame must be able to access the Home Assistant server.
 - The images to be retrieved must be available on the Home Assistant server, optimized for the frame, which means: in the correct resolution (1600x1200px for the 13.3" frame), in JPEG format, and already adjusted for the Spectra 6 display, e.g., brightened or increased in saturation. In my setup, I synchronize the images from a local [Immich](https://immich.app/) server and then optimize them automatically. I wrote separate scripts for this, which I will post on GitHub when I get a chance. 
 - The images must be in <image_dir> (see configuration below) as JPEGs and end with the file name “_opt.jpg”. 
 
@@ -30,7 +30,7 @@ The integration is aimed in particular at users who do not just want to use Bloo
 1. Open **HACS → Integrations**
 2. Click on **“Custom Repositories”**
 3. Add this repository: https://github.com/fwmone/bloomin8_pull, Category: **Integration**
-4. Install **Bloomin8 Pull**
+4. Install **BLOOMIN8 Pull**
 5. Restart Home Assistant
 
 ---
@@ -61,9 +61,9 @@ And for the access token in <secrets.yaml>:
 bloomin8_pull_token: “<YOUR_TOKEN_HERE>”
 ```
 
-### Configuration of the Bloomin8 frame
+### Configuration of the BLOOMIN8 picture frame
 
-The [configuration](https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component/blob/main/docs/Schedule_Pull_API.md) contains the crucial services under “1. Device Endpoint: /upstream/pull_settings”. For configuration, the frame must be accessible via Wi-Fi, so it must be woken up via the Bloomin8 mobile app before the services can be accessed. Once configured, it automatically wakes up at the time set in <next_cron_time> and then connects to the Home Assistant server. 
+The [configuration](https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component/blob/main/docs/Schedule_Pull_API.md) contains the crucial services under “1. Device Endpoint: /upstream/pull_settings”. For configuration, the picture frame must be accessible via Wi-Fi, so it must be woken up via the BLOOMIN8 mobile app before the services can be accessed. Once configured, it automatically wakes up at the time set in <next_cron_time> and then connects to the Home Assistant server. 
 
 Example:
 
@@ -134,4 +134,4 @@ Please use the issue tracker on GitHub:
 
 ## 🙏 Note
 
-This integration has no official connection to the manufacturer of Bloomin8.
+This integration has no official connection to the manufacturer of BLOOMIN8.

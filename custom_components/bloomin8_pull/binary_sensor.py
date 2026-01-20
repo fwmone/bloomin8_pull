@@ -11,7 +11,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
 
 class Bloomin8LastSuccessBinarySensor(BinarySensorEntity):
-    _attr_name = "Bloomin8 Last Pull Success"
+    _attr_name = "BLOOMIN8 Last Pull Success"
     _attr_unique_id = "bloomin8_last_pull_success"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_icon = "mdi:check-circle"

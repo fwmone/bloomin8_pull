@@ -1,7 +1,7 @@
 {
-  "name": "Bloomin8 Pull",
+  "name": "BLOOMIN8 Pull",
   "category": "Integration",
-  "description": "Custom component to provide pull endpoints for Bloomin8 canvases.",
+  "description": "Custom component to provide pull endpoints for BLOOMIN8 picture frames.",
   "homeassistant": "2026.1.0",
   "author": "F. Müller",
   "render_readme": true
