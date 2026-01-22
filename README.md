@@ -40,7 +40,7 @@ The integration is aimed in particular at users who do not just want to use BLOO
 - Home Assistant **2024.12** or newer. I personally always work on the current version of Home Assistant, so I cannot guarantee compatibility with older versions.
 - The BLOOMIN8 picture frame must be able to access the Home Assistant server.
 - The images to be retrieved must be available on the Home Assistant server, optimized for the frame, which means: in the correct resolution (1600x1200px for the 13.3" frame), in JPEG format, and already adjusted for the Spectra 6 display, e.g., brightened or increased in saturation. In my setup, I synchronize the images from a local [Immich](https://immich.app/) server and then optimize them automatically. I wrote separate scripts for this, which I will post on GitHub when I get a chance. 
-- The images must be in <image_dir> (see configuration below) as JPEGs and end with the file name “.jpg” or “.jpeg”. 
+- The images must be in <image_dir> (see configuration below) as JPEGs and end with the suffix “.jpg”.
 
 ---
 

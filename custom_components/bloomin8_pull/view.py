@@ -17,7 +17,7 @@ from .const import DOMAIN, STATE_BATTERY, STATE_SUCCESS, STATE_LAST_SEEN, STATE_
 
 _LOGGER = logging.getLogger(__name__)
 
-ALLOWED_EXT = (".jpg",".jpeg")
+ALLOWED_EXT = (".jpg",)
 
 @property
 def icon(self):
