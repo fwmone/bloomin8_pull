@@ -112,7 +112,9 @@ class Bloomin8PullView(HomeAssistantView):
 
         image_dir: str = self.cfg["image_dir"]
         publish_dir: str = self.cfg["publish_dir"]
+        publish_webpath: str = self.cfg["publish_webpath"]
         interval_min: int = int(self.cfg["next_interval_minutes"])
+        orientation: str = self.cfg["orientation"]
 
         # --- Choose a local image from cache ---
         try:
@@ -142,7 +144,7 @@ class Bloomin8PullView(HomeAssistantView):
         # "current" + original extension, e.g. current.png
         basename, ext = os.path.splitext(chosen)
         ext = ext.lower() if ext else ".jpg"
-        published_name = f"{basename}_P{ext}"
+        published_name = f"{basename}_{orientation}{ext}"
         dst_path = os.path.join(publish_dir, published_name)
 
         # Copy is safest across filesystems; very small overhead for e-ink cadence.
@@ -160,7 +162,7 @@ class Bloomin8PullView(HomeAssistantView):
         # Build absolute base URL from the incoming request (works behind reverse proxy if headers are correct).
         # image_url must be absolute for BLOOMIN8.
         base = f"{request.scheme}://{request.host}"
-        image_url = f"{base}/local/bloomin8/{published_name}"
+        image_url = f"{base}{publish_webpath}/{published_name}"
 
         next_time = _utc_iso_z(dt.datetime.utcnow() + dt.timedelta(minutes=interval_min))
 

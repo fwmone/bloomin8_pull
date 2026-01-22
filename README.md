@@ -6,6 +6,27 @@ The integration is aimed in particular at users who do not just want to use BLOO
 
 ---
 
+## 📖 Table of content
+
+- [BLOOMIN8 Pull – Home Assistant Custom Integration](#bloomin8-pull--home-assistant-custom-integration)
+  - [📖 Table of content](#-table-of-content)
+  - [✨ Features](#-features)
+  - [🧩 Requirements](#-requirements)
+  - [📦 Installation](#-installation)
+    - [Option A: Installation via HACS (recommended)](#option-a-installation-via-hacs-recommended)
+    - [Option B: Manual installation](#option-b-manual-installation)
+  - [⚙️ Configuration](#️-configuration)
+    - [Configuration of the BLOOMIN8 picture frame](#configuration-of-the-bloomin8-picture-frame)
+    - [Testing](#testing)
+  - [🚫 Limitations](#-limitations)
+  - [📊 Entities](#-entities)
+  - [🧠 Application examples](#-application-examples)
+  - [🛠️ Development \& status](#️-development--status)
+  - [🐞 Report a bug](#-report-a-bug)
+  - [🙏 Note](#-note)
+
+---
+
 ## ✨ Features
 
 - Pull-based retrieval of content/status information
@@ -45,15 +66,27 @@ The integration is aimed in particular at users who do not just want to use BLOO
 
 ## ⚙️ Configuration
 
-The integration is currently configured **via YAML**. I added a section to <configuration.yaml> using a file editor:
+The integration is currently configured **via YAML**. I added a section to <configuration.yaml> using Home Assistant's file editor:
 
 ```yaml
 bloomin8_pull:
   access_token: !secret bloomin8_pull_token
-  image_dir: /config/www/bloomin8/originals
+  image_dir: /media/bloomin8
   publish_dir: /config/www/bloomin8
+  publish_webpath: /local/bloomin8
   next_interval_minutes: 720   # 12h
+  orientation: P   # P = portrait format, L = landscape format
 ```
+
+|key|explanation|
+|----------|---------|
+|*access_token*|A token specified by you that the picture frame uses for identification. This should usually be “!secret bloomin8_pull_token.” In *secrets.yaml* (see below), you then store the actual token and transfer this configured token to the picture frame via “token” (see also below).|
+|*image_dir*|This is where all the images on the Home Assistant server are stored, from which the pull endpoint selects one for the picture frame.|
+|*publish_dir*|The directory that can be accessed via a web browser. This is usually /config/www, which contains a directory for the picture frame, e.g. bloomin8. The pull endpoint copies the selected image here and replaces it with a new one the next time it is retrieved.|
+|*publish_webpath*|The web path to “publish_dir”. For “/config/www/bloomin8,” this is usually “/local/bloomin8.” Only the path is configured here, not the server address. You specify the server address via the configuration of *upstream_url* below the image frame. For the image frame, the complete URL would therefore be http://<IP-AND-PORT-OF-HOME-ASSISTANT>/local/bloomin8|
+|*next_interval_minutes*|After how many minutes should the picture frame retrieve a new image? Specify in minutes, e.g., 720 for 12 hours (60x12). |
+|*orientation*|The orientation of the picture frame - P = portrait format, L = landscape format.|
+
 
 And for the access token in <secrets.yaml>:
 
@@ -104,7 +137,11 @@ This allows you to “configure” your picture frame:
 curl -X PUT “http://<IP-OF-BLOOMIN8-FRAME>/upstream/pull_settings” -H "Content-Type: application/json“ -d ”{\“upstream_on\”:true,\“upstream_url\”:\“http://<IP-AND-PORT-OF-HOME-ASSISTANT>\”,\“token\”:\" <YOUR_TOKEN_HERE>\“,\”cron_time\“:\”2026-01-17T05:00:00Z\“}”
 ```
 
-<cron_time> must be UTC time!
+<cron_time> must be UTC time.
+
+## 🚫 Limitations
+
+Currently, only one frame is supported. Actually, you can use with several frames but they have to be in the same orientation.
 
 ## 📊 Entities
 
