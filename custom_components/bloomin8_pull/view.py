@@ -9,15 +9,13 @@ import json
 from http import HTTPStatus
 from pathlib import Path
 
-
 from aiohttp import web
 from homeassistant.components.http import HomeAssistantView
 
+from collections import deque
+from homeassistant.helpers.storage import Store
+
 from .const import DOMAIN, STATE_BATTERY, STATE_SUCCESS, STATE_LAST_SEEN, STATE_FILE
-
-_LOGGER = logging.getLogger(__name__)
-
-ALLOWED_EXT = (".jpg",)
 
 @property
 def icon(self):
@@ -27,6 +25,9 @@ def _utc_iso_z(ts: dt.datetime) -> str:
     ts = ts.replace(tzinfo=dt.timezone.utc, microsecond=0)
     return ts.isoformat().replace("+00:00", "Z")
 
+def calc_recent_max(n_files: int) -> int:
+    # 25% der Dateien, mindestens 5, maximal 30
+    return max(5, min(30, int(round(n_files * 0.25))))
 
 def clear_publish_dir(path: str) -> None:
     if not os.path.isdir(path):
@@ -53,6 +54,36 @@ def _publish_image_sync(publish_dir: str, src_path: str, dst_path: str) -> None:
 
 def _list_images_sync(image_dir: str, allowed_ext: tuple[str, ...]) -> list[str]:
     return [f for f in os.listdir(image_dir) if f.endswith(allowed_ext)]
+
+
+async def choose_varied(hass, files: list[str], store_key: str = "recent_images") -> str:
+    RECENT_MAX = calc_recent_max(len(files))
+
+    store = Store(hass, 1, f"bloomin8_pull_{store_key}")
+
+    data = await store.async_load() or {}
+    recent = deque(data.get("recent", []), maxlen=RECENT_MAX)
+
+    # Entfernte Dateien aus recent rauswerfen (dynamische Bildauswahl)
+    files_set = set(files)
+    recent = deque([f for f in recent if f in files_set], maxlen=RECENT_MAX)
+
+    # Kandidaten: alles, was nicht "recent" ist
+    recent_set = set(recent)
+    candidates = [f for f in files if f not in recent_set]
+
+    # Fallback: wenn alles in recent ist, nimm wieder aus allen
+    chosen = random.choice(candidates or files)
+
+    # recent updaten
+    recent.append(chosen)
+    await store.async_save({"recent": list(recent)})
+
+    return chosen
+
+
+_LOGGER = logging.getLogger(__name__)
+ALLOWED_EXT = (".jpg",)
 
 
 class Bloomin8PullView(HomeAssistantView):
@@ -134,7 +165,7 @@ class Bloomin8PullView(HomeAssistantView):
                 status=HTTPStatus.NO_CONTENT,
             )
 
-        chosen = random.choice(files)
+        chosen = await choose_varied(self.hass, files)
         src_path = os.path.join(image_dir, chosen)
 
         # --- Publish under /local/... (served from /config/www) ---
