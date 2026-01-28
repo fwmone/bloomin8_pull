@@ -26,8 +26,8 @@ def _utc_iso_z(ts: dt.datetime) -> str:
     return ts.isoformat().replace("+00:00", "Z")
 
 def calc_recent_max(n_files: int) -> int:
-    # 25% der Dateien, mindestens 5, maximal 30
-    return max(5, min(30, int(round(n_files * 0.25))))
+    # 50% der Dateien, mindestens 5, maximal 50
+    return max(5, min(50, int(round(n_files * 0.5))))
 
 def clear_publish_dir(path: str) -> None:
     if not os.path.isdir(path):

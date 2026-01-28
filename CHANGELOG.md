@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.8] - 2026-01-28
+
+### Changed
+
+- larger history of last shown pictures (50% instead of 25%, min 5, max 50)
+
 ## [0.1.7] - 2026-01-25
 
 ### Added
