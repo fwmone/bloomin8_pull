@@ -15,15 +15,10 @@ from homeassistant.components.http import HomeAssistantView
 from collections import deque
 from homeassistant.helpers.storage import Store
 
+from datetime import datetime, timedelta
+from homeassistant.util import dt as dt_util
+
 from .const import DOMAIN, STATE_BATTERY, STATE_SUCCESS, STATE_LAST_SEEN, STATE_FILE
-
-@property
-def icon(self):
-    return self._icon # You can use things like "mdi:calendar" etc
-
-def _utc_iso_z(ts: dt.datetime) -> str:
-    ts = ts.replace(tzinfo=dt.timezone.utc, microsecond=0)
-    return ts.isoformat().replace("+00:00", "Z")
 
 def calc_recent_max(n_files: int) -> int:
     # 50% der Dateien, mindestens 5, maximal 50
@@ -55,6 +50,37 @@ def _publish_image_sync(publish_dir: str, src_path: str, dst_path: str) -> None:
 def _list_images_sync(image_dir: str, allowed_ext: tuple[str, ...]) -> list[str]:
     return [f for f in os.listdir(image_dir) if f.endswith(allowed_ext)]
 
+def parse_wake_up_hours(raw: str | list[int] | None) -> list[int]:
+    if raw is None:
+        return []
+    if isinstance(raw, list):
+        hours = raw
+    else:
+        parts = [p.strip() for p in str(raw).split(",") if p.strip()]
+        hours = [int(p) for p in parts]
+    for h in hours:
+        if h < 0 or h > 23:
+            raise ValueError(f"wake_up_hours hour out of range: {h}")
+    return sorted(set(hours))
+
+def next_wake_time_local(hours: list[int], now_local=None):
+    if now_local is None:
+        now_local = dt_util.now()
+
+    today = now_local.date()
+    candidates = [
+        dt_util.as_local(datetime(today.year, today.month, today.day, h, 0, 0))
+        for h in hours
+    ]
+    candidates = sorted(candidates)
+
+    for c in candidates:
+        if c > now_local:
+            return c
+
+    tomorrow = today + timedelta(days=1)
+    first = dt_util.as_local(datetime(tomorrow.year, tomorrow.month, tomorrow.day, hours[0], 0, 0))
+    return first
 
 async def choose_varied(hass, files: list[str], store_key: str = "recent_images") -> str:
     RECENT_MAX = calc_recent_max(len(files))
@@ -144,7 +170,11 @@ class Bloomin8PullView(HomeAssistantView):
         image_dir: str = self.cfg["image_dir"]
         publish_dir: str = self.cfg["publish_dir"]
         publish_webpath: str = self.cfg["publish_webpath"]
-        interval_min: int = int(self.cfg["next_interval_minutes"])
+
+        hours = parse_wake_up_hours(self.cfg["wake_up_hours"])
+        next_local = next_wake_time_local(hours)
+        next_utc = dt_util.as_utc(next_local)
+
         orientation: str = self.cfg["orientation"]
 
         # --- Choose a local image from cache ---
@@ -159,7 +189,7 @@ class Bloomin8PullView(HomeAssistantView):
                     "status": 204,
                     "message": "No image available",
                     "data": {
-                        "next_cron_time": _utc_iso_z(dt.datetime.utcnow() + dt.timedelta(minutes=interval_min))
+                        "next_cron_time": next_utc.replace(microsecond=0).isoformat().replace("+00:00", "Z")
                     }
                 }                ,
                 status=HTTPStatus.NO_CONTENT,
@@ -195,15 +225,13 @@ class Bloomin8PullView(HomeAssistantView):
         base = f"{request.scheme}://{request.host}"
         image_url = f"{base}{publish_webpath}/{published_name}"
 
-        next_time = _utc_iso_z(dt.datetime.utcnow() + dt.timedelta(minutes=interval_min))
-
         return web.json_response(
             {
                 "status": 200,
                 "type": "SHOW",
                 "message": "Image retrieved successfully",
                 "data": {
-                    "next_cron_time": next_time,
+                    "next_cron_time": next_utc.replace(microsecond=0).isoformat().replace("+00:00", "Z"),
                     "image_url": image_url,
                 },
             },

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.9] - 2026-01-29
+
+### Added - BREAKING CHANGE
+
+- parameter "wake_up_hours" instead of "next_interval_minutes" because BLOOMIN8 frame does not wake at exact time but seems to drift a few minutes. "wake_up_hours" is a comma-separated list of hours you want the frame to wake at, e. g. "6,18" = 6:00 and 18:00. "next_interval_minutes" does not work anymore, sorry.
+
 ## [0.1.8] - 2026-01-28
 
 ### Changed

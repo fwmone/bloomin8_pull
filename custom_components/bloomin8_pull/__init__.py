@@ -16,12 +16,12 @@ from .const import (
     CONF_IMAGE_DIR,
     CONF_PUBLISH_DIR,
     CONF_PUBLISH_WEBPATH,
-    CONF_NEXT_INTERVAL_MINUTES,
+    CONF_WAKE_UP_HOURS,
     CONF_ORIENTATION,
     DEFAULT_IMAGE_DIR,
     DEFAULT_PUBLISH_DIR,
     DEFAULT_PUBLISH_WEBPATH,
-    DEFAULT_NEXT_INTERVAL_MINUTES,
+    DEFAULT_WAKE_UP_HOURS,
     DEFAULT_ORIENTATION,
     STATE_BATTERY,
     STATE_SUCCESS,
@@ -41,7 +41,7 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Optional(CONF_IMAGE_DIR, default=DEFAULT_IMAGE_DIR): cv.string,
                 vol.Optional(CONF_PUBLISH_DIR, default=DEFAULT_PUBLISH_DIR): cv.string,
                 vol.Optional(CONF_PUBLISH_WEBPATH, default=DEFAULT_PUBLISH_WEBPATH): cv.string,
-                vol.Optional(CONF_NEXT_INTERVAL_MINUTES, default=DEFAULT_NEXT_INTERVAL_MINUTES): cv.positive_int,
+                vol.Optional(CONF_WAKE_UP_HOURS, default=DEFAULT_WAKE_UP_HOURS): cv.string,
                 vol.Optional(CONF_ORIENTATION, default=DEFAULT_ORIENTATION): cv.string,
             }
         )

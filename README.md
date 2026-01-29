@@ -74,7 +74,7 @@ bloomin8_pull:
   image_dir: /media/bloomin8
   publish_dir: /config/www/bloomin8
   publish_webpath: /local/bloomin8
-  next_interval_minutes: 720   # 12h
+  wake_up_hours: "6,18" # 6:00 and 18:00
   orientation: P   # P = portrait format, L = landscape format
 ```
 
@@ -84,7 +84,7 @@ bloomin8_pull:
 |*image_dir*|This is where all the images on the Home Assistant server are stored, from which the pull endpoint selects one for the picture frame.|
 |*publish_dir*|The directory that can be accessed via a web browser. This is usually /config/www, which contains a directory for the picture frame, e.g. bloomin8. The pull endpoint copies the selected image here and replaces it with a new one the next time it is retrieved.|
 |*publish_webpath*|The web path to “publish_dir”. For “/config/www/bloomin8,” this is usually “/local/bloomin8.” Only the path is configured here, not the server address. You specify the server address via the configuration of *upstream_url* below the image frame. For the image frame, the complete URL would therefore be http://<IP-AND-PORT-OF-HOME-ASSISTANT>/local/bloomin8|
-|*next_interval_minutes*|After how many minutes should the picture frame retrieve a new image? Specify in minutes, e.g., 720 for 12 hours (60x12). |
+|*wake_up_hours*|At which time should the picture frame retrieve a new image? Specify in comma-separated hours, e.g., "6,18" for 6:00 and 18:00.|
 |*orientation*|The orientation of the picture frame - P = portrait format, L = landscape format.|
 
 
