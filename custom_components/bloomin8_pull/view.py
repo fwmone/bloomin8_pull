@@ -21,7 +21,7 @@ from homeassistant.util import dt as dt_util
 from .const import DOMAIN, STATE_BATTERY, STATE_SUCCESS, STATE_LAST_SEEN, STATE_FILE
 
 def calc_recent_max(n_files: int) -> int:
-    # 50% der Dateien, mindestens 5, maximal 50
+    # 50% of files, minimum 5, maximum 50
     return max(5, min(50, int(round(n_files * 0.5))))
 
 def clear_publish_dir(path: str) -> None:
@@ -82,6 +82,30 @@ def next_wake_time_local(hours: list[int], now_local=None):
     first = dt_util.as_local(datetime(tomorrow.year, tomorrow.month, tomorrow.day, hours[0], 0, 0))
     return first
 
+def next_wake_time_local_windowed(
+    hours: list[int],
+    now_local: datetime | None = None,
+    drift_window: timedelta = timedelta(minutes=30),
+) -> datetime:
+    """Return next scheduled local time.
+    If we're within `drift_window` BEFORE the next slot, skip that slot and return the following one.
+    """
+    if not hours:
+        raise ValueError("No wake_up_hours configured")
+
+    if now_local is None:
+        now_local = dt_util.now()
+
+    first = next_wake_time_local(hours, now_local=now_local)
+
+    # If the device calls shortly before the next slot (drift), don't schedule that same slot again.
+    delta = first - now_local
+    if timedelta(0) < delta <= drift_window:
+        # Next slot after `first`
+        return next_wake_time_local(hours, now_local=first + timedelta(seconds=1))
+
+    return first
+
 async def choose_varied(hass, files: list[str], store_key: str = "recent_images") -> str:
     RECENT_MAX = calc_recent_max(len(files))
 
@@ -90,18 +114,18 @@ async def choose_varied(hass, files: list[str], store_key: str = "recent_images"
     data = await store.async_load() or {}
     recent = deque(data.get("recent", []), maxlen=RECENT_MAX)
 
-    # Entfernte Dateien aus recent rauswerfen (dynamische Bildauswahl)
+    # Remove files from recent (dynamic image selection)
     files_set = set(files)
     recent = deque([f for f in recent if f in files_set], maxlen=RECENT_MAX)
 
-    # Kandidaten: alles, was nicht "recent" ist
+    # Candidates: anything that is not “recent”
     recent_set = set(recent)
     candidates = [f for f in files if f not in recent_set]
 
-    # Fallback: wenn alles in recent ist, nimm wieder aus allen
+    # Fallback: if everything is in recent, take from all again
     chosen = random.choice(candidates or files)
 
-    # recent updaten
+    # update recent
     recent.append(chosen)
     await store.async_save({"recent": list(recent)})
 
@@ -153,12 +177,12 @@ class Bloomin8PullView(HomeAssistantView):
                 STATE_LAST_SEEN: self.hass.data[DOMAIN]["state"][STATE_LAST_SEEN],
             }
 
-            # nicht blocking im event loop
+            # don't block the event loop
             await self.hass.async_add_executor_job(_write_json_sync, STATE_FILE, data)
         except Exception:
             pass
 
-        # Push: alle registrierten Entities neu schreiben
+        # Push: rewrite all registered entities
         for ent in self.hass.data[DOMAIN].get("entities", []):
             ent.async_write_ha_state()
 
@@ -172,7 +196,12 @@ class Bloomin8PullView(HomeAssistantView):
         publish_webpath: str = self.cfg["publish_webpath"]
 
         hours = parse_wake_up_hours(self.cfg["wake_up_hours"])
-        next_local = next_wake_time_local(hours)
+        now_local = dt_util.now()
+        next_local = next_wake_time_local_windowed(
+            hours,
+            now_local=now_local,
+            drift_window=timedelta(minutes=30),
+        )
         next_utc = dt_util.as_utc(next_local)
 
         orientation: str = self.cfg["orientation"]
@@ -278,12 +307,12 @@ class Bloomin8SignalView(HomeAssistantView):
                 STATE_LAST_SEEN: self.hass.data[DOMAIN]["state"][STATE_LAST_SEEN],
             }
 
-            # nicht blocking im event loop
+            # don't block the event loop
             await self.hass.async_add_executor_job(_write_json_sync, STATE_FILE, data)
         except Exception:
             pass
 
-        # Push: alle registrierten Entities neu schreiben
+        # Push: rewrite all registered entities
         for ent in self.hass.data[DOMAIN].get("entities", []):
             ent.async_write_ha_state()
 

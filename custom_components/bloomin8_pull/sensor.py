@@ -32,6 +32,6 @@ class Bloomin8BatterySensor(SensorEntity):
         }
 
     async def async_added_to_hass(self):
-        # registrieren, damit der View später pushen kann
+        # register so that the view can push later
         self.hass.data[DOMAIN]["entities"].append(self)
         self.async_write_ha_state()

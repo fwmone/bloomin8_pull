@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.10] - 2026-01-30
+
+### Changed
+
+- take care of device time drift of up to 30 minutes, e. g. device is set to wake up at 6am but wakes at 5:47 (seems to be a firmware bug) - do not set the time to 6am again but to the next time slot (e. g. 18:00 when wake_up_hours is "6,18").
+- translated all comments to English
+
 ## [0.1.9] - 2026-01-29
 
 ### Added - BREAKING CHANGE

@@ -75,13 +75,13 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         except Exception:
             pass
 
-    hass.data[DOMAIN]["entities"] = []  # hier registrieren sich die Entities, damit wir pushen können
+    hass.data[DOMAIN]["entities"] = []  # This is where entities register so that we can push
 
     # register the HTTP endpoint
     hass.http.register_view(Bloomin8PullView(hass, cfg))
     hass.http.register_view(Bloomin8SignalView(hass, cfg))
 
-    # Plattformen laden
+    # Load platforms
     for platform in PLATFORMS:
         hass.async_create_task(async_load_platform(hass, platform, DOMAIN, {}, config))
     return True
