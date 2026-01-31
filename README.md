@@ -4,8 +4,6 @@
 
 The integration is aimed in particular at users who do not just want to use BLOOMIN8 as a passive picture frame, but want to control content, status, or image changes **automatically and context-dependently**. It is still in the very early stages of its development cycle and was created primarily out of my personal desire to be able to display images locally on the frame.
 
----
-
 ## 📖 Table of content
 
 - [BLOOMIN8 Pull – Home Assistant Custom Integration](#bloomin8-pull--home-assistant-custom-integration)
@@ -25,15 +23,11 @@ The integration is aimed in particular at users who do not just want to use BLOO
   - [🐞 Report a bug](#-report-a-bug)
   - [🙏 Note](#-note)
 
----
-
 ## ✨ Features
 
 - Pull-based retrieval of content/status information
 - Provision of sensors for further processing in automations
 - Local communication (no cloud requirement)
-
----
 
 ## 🧩 Requirements
 
@@ -41,8 +35,6 @@ The integration is aimed in particular at users who do not just want to use BLOO
 - The BLOOMIN8 picture frame must be able to access the Home Assistant server.
 - The images to be retrieved must be available on the Home Assistant server, optimized for the frame, which means: in the correct resolution (1600x1200px for the 13.3" frame), in JPEG format, and already adjusted for the Spectra 6 display, e.g., brightened or increased in saturation. In my setup, I synchronize the images from a local [Immich](https://immich.app/) server and then optimize them automatically. I wrote separate scripts for this, which I will post on GitHub when I get a chance. 
 - The images must be in <image_dir> (see configuration below) as JPEGs and end with the suffix “.jpg”.
-
----
 
 ## 📦 Installation
 
@@ -54,15 +46,11 @@ The integration is aimed in particular at users who do not just want to use BLOO
 4. Install **BLOOMIN8 Pull**
 5. Restart Home Assistant
 
----
-
 ### Option B: Manual installation
 
 1. Download this repository
 2. Copy the custom_components/bloomin8_pull folder to: <config>/custom_components/bloomin8_pull (this is usually /config/custom_components)
 3. Restart Home Assistant
-
----
 
 ## ⚙️ Configuration
 
