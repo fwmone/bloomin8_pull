@@ -1,44 +1,41 @@
-# BLOOMIN8 Pull – Home Assistant Custom Integration
+# 📖 Table of content
+
+- [📖 Table of content](#-table-of-content)
+- [✨ Features](#-features)
+- [🧩 Requirements](#-requirements)
+- [📦 Installation](#-installation)
+  - [Option A: Installation via HACS (recommended)](#option-a-installation-via-hacs-recommended)
+  - [Option B: Manual installation](#option-b-manual-installation)
+- [⚙️ Configuration](#️-configuration)
+  - [Configuration of the BLOOMIN8 picture frame](#configuration-of-the-bloomin8-picture-frame)
+  - [Testing](#testing)
+- [🚫 Limitations](#-limitations)
+- [📊 Entities](#-entities)
+- [🧠 Application examples](#-application-examples)
+- [🛠️ Development \& status](#️-development--status)
+- [🐞 Report a bug](#-report-a-bug)
+- [🙏 Note](#-note)
+
+# ✨ Features
 
 `bloomin8_pull` is a custom integration for Home Assistant that allows content from a [**BLOOMIN8 e-ink picture frame**](https://www.bloomin8.com/) to be retrieved from the Home Assistant server using a pull mechanism. It implements the [Schedule Pull API](https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component/blob/main/docs/Schedule_Pull_API.md) that BLOOMIN8 has provided as a code example. The official [BLOOMIN8 integration](https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component?tab=readme-ov-file) is independent of this. It is not required for this integration, but can of course be installed independently.
 
 The integration is aimed in particular at users who do not just want to use BLOOMIN8 as a passive picture frame, but want to control content, status, or image changes **automatically and context-dependently**. It is still in the very early stages of its development cycle and was created primarily out of my personal desire to be able to display images locally on the frame.
 
-## 📖 Table of content
-
-- [BLOOMIN8 Pull – Home Assistant Custom Integration](#bloomin8-pull--home-assistant-custom-integration)
-  - [📖 Table of content](#-table-of-content)
-  - [✨ Features](#-features)
-  - [🧩 Requirements](#-requirements)
-  - [📦 Installation](#-installation)
-    - [Option A: Installation via HACS (recommended)](#option-a-installation-via-hacs-recommended)
-    - [Option B: Manual installation](#option-b-manual-installation)
-  - [⚙️ Configuration](#️-configuration)
-    - [Configuration of the BLOOMIN8 picture frame](#configuration-of-the-bloomin8-picture-frame)
-    - [Testing](#testing)
-  - [🚫 Limitations](#-limitations)
-  - [📊 Entities](#-entities)
-  - [🧠 Application examples](#-application-examples)
-  - [🛠️ Development \& status](#️-development--status)
-  - [🐞 Report a bug](#-report-a-bug)
-  - [🙏 Note](#-note)
-
-## ✨ Features
-
 - Pull-based retrieval of content/status information
 - Provision of sensors for further processing in automations
 - Local communication (no cloud requirement)
 
-## 🧩 Requirements
+# 🧩 Requirements
 
 - Home Assistant **2024.12** or newer. I personally always work on the current version of Home Assistant, so I cannot guarantee compatibility with older versions.
 - The BLOOMIN8 picture frame must be able to access the Home Assistant server.
 - The images to be retrieved must be available on the Home Assistant server, optimized for the frame, which means: in the correct resolution (1600x1200px for the 13.3" frame), in JPEG format, and already adjusted for the Spectra 6 display, e.g., brightened or increased in saturation. In my setup, I synchronize the images from a local [Immich](https://immich.app/) server and then optimize them automatically. I wrote separate scripts for this, which I will post on GitHub when I get a chance. I published my optimizer [here](https://github.com/fwmone/eink-optimize).
 - The images must be in <image_dir> (see configuration below) as JPEGs and end with the suffix “.jpg”.
 
-## 📦 Installation
+# 📦 Installation
 
-### Option A: Installation via HACS (recommended)
+## Option A: Installation via HACS (recommended)
 
 1. Open **HACS → Integrations**
 2. Click on **“Custom Repositories”**
@@ -46,13 +43,13 @@ The integration is aimed in particular at users who do not just want to use BLOO
 4. Install **BLOOMIN8 Pull**
 5. Restart Home Assistant
 
-### Option B: Manual installation
+## Option B: Manual installation
 
 1. Download this repository
 2. Copy the custom_components/bloomin8_pull folder to: <config>/custom_components/bloomin8_pull (this is usually /config/custom_components)
 3. Restart Home Assistant
 
-## ⚙️ Configuration
+# ⚙️ Configuration
 
 The integration is currently configured **via YAML**. I added a section to <configuration.yaml> using Home Assistant's file editor:
 
@@ -81,7 +78,7 @@ And for the access token in <secrets.yaml>:
 bloomin8_pull_token: “<YOUR_TOKEN_HERE>”
 ```
 
-### Configuration of the BLOOMIN8 picture frame
+## Configuration of the BLOOMIN8 picture frame
 
 The [configuration](https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component/blob/main/docs/Schedule_Pull_API.md) contains the crucial services under “1. Device Endpoint: /upstream/pull_settings”. For configuration, the picture frame must be accessible via Wi-Fi, so it must be woken up via the BLOOMIN8 mobile app before the services can be accessed. Once configured, it automatically wakes up at the time set in <next_cron_time> and then connects to the Home Assistant server. 
 
@@ -101,7 +98,7 @@ Content-Type: application/json
 
 For IP-AND-PORT-OF-HOME-ASSISTANT, for example, http://192.168.0.1:8123. The framework then automatically appends the path to the pull service.
 
-### Testing
+## Testing
 
 You can use the following commands to test:
 
@@ -126,11 +123,11 @@ curl -X PUT “http://<IP-OF-BLOOMIN8-FRAME>/upstream/pull_settings” -H "Conte
 
 <cron_time> must be UTC time.
 
-## 🚫 Limitations
+# 🚫 Limitations
 
 Currently, only one frame is supported. Actually, you can use with several frames but they have to be in the same orientation.
 
-## 📊 Entities
+# 📊 Entities
 
 After successful setup, the integration provides two entities:
 
@@ -139,23 +136,23 @@ After successful setup, the integration provides two entities:
 
 The entities can be used directly in dashboards, automations, or scripts.
 
-## 🧠 Application examples
+# 🧠 Application examples
 
 - Automatic image change depending on time of day or weather
 - Display of context-related content (e.g., calendar, notes, moods)
 - Integration into existing smart home scenarios
 
-## 🛠️ Development & status
+# 🛠️ Development & status
 
 This integration is currently under active development. 
 Feedback, bug reports, and pull requests are welcome.
 
-## 🐞 Report a bug
+# 🐞 Report a bug
 
 Please use the issue tracker on GitHub:
 
 👉 https://github.com/fwmone/bloomin8_pull/issues
 
-## 🙏 Note
+# 🙏 Note
 
 This integration has no official connection to the manufacturer of BLOOMIN8.
