@@ -30,15 +30,15 @@ The integration is aimed in particular at users who do not just want to use BLOO
 
 - Home Assistant **2024.12** or newer. I personally always work on the current version of Home Assistant, so I cannot guarantee compatibility with older versions.
 - The BLOOMIN8 picture frame must be able to access the Home Assistant server.
-- The images to be retrieved must be available on the Home Assistant server, optimized for the frame, which means: in the correct resolution (1600x1200px for the 13.3" frame), in JPEG format, and already adjusted for the Spectra 6 display, e.g., brightened or increased in saturation. In my setup, I synchronize the images from a local [Immich](https://immich.app/) server and then optimize them automatically. I wrote separate scripts for this, which I will post on GitHub when I get a chance. I published my optimizer [here](https://github.com/fwmone/eink-optimize).
-- The images must be in <image_dir> (see configuration below) as JPEGs and end with the suffix “.jpg”.
+- The images to be retrieved must be available on the Home Assistant server, optimized for the frame, which means: in the correct resolution (1600x1200px for the 13.3" frame), in JPEG format, and already adjusted for the Spectra 6 display, e.g., brightened or increased in saturation. In my setup, I synchronize the images from a local [Immich](https://immich.app/) server and then optimize them automatically. I wrote separate scripts for this, which I will post on GitHub when I get a chance. I already published my optimizer [here](https://github.com/fwmone/eink-optimize).
+- The images must be in <image_dir> (see configuration below) as JPEGs and end with the suffix ".jpg".
 
 # 📦 Installation
 
 ## Option A: Installation via HACS (recommended)
 
 1. Open **HACS → Integrations**
-2. Click on **“Custom Repositories”**
+2. Click on **"Custom Repositories"**
 3. Add this repository: https://github.com/fwmone/bloomin8_pull, Category: **Integration**
 4. Install **BLOOMIN8 Pull**
 5. Restart Home Assistant
@@ -65,22 +65,22 @@ bloomin8_pull:
 
 |key|explanation|
 |----------|---------|
-|*access_token*|A token specified by you that the picture frame uses for identification. This should usually be “!secret bloomin8_pull_token.” In *secrets.yaml* (see below), you then store the actual token and transfer this configured token to the picture frame via “token” (see also below).|
-|*image_dir*|This is where all the images on the Home Assistant server are stored, from which the pull endpoint selects one for the picture frame.|
-|*publish_dir*|The directory that can be accessed via a web browser. This is usually /config/www, which contains a directory for the picture frame, e.g. bloomin8. The pull endpoint copies the selected image here and replaces it with a new one the next time it is retrieved.|
-|*publish_webpath*|The web path to “publish_dir”. For “/config/www/bloomin8,” this is usually “/local/bloomin8.” Only the path is configured here, not the server address. You specify the server address via the configuration of *upstream_url* below the image frame. For the image frame, the complete URL would therefore be http://<IP-AND-PORT-OF-HOME-ASSISTANT>/local/bloomin8|
-|*wake_up_hours*|At which time should the picture frame retrieve a new image? Specify in comma-separated hours, e.g., "6,18" for 6:00 and 18:00. The component takes care of the device's firmware bug of waking up too early (e. g. 5:47 instead of 6:00) for up to 30 minutes and then skips to the next time slot (-> do not send 6:00 again, but 18:00).|
+|*access_token*|A token specified by you that the picture frame uses for identification. This should usually be "!secret bloomin8_pull_token." In *secrets.yaml* (see below), you then store the actual token and transfer this configured token to the picture frame via "token" (see also below).|
+|*image_dir*|This is where all the frame-optimized (1600x1200px for 13.3", optimized colors - get optimization script [here](https://github.com/fwmone/eink-optimize)) images are stored on the Home Assistant server. From these the pull endpoint selects one for the picture frame.|
+|*publish_dir*|The directory that can be accessed via a web browser. This is usually /config/www, which contains a directory for the picture frame, e.g. bloomin8. The pull endpoint copies the selected image here and replaces it with a new one the next time it is retrieved by first deleting all images inside the folder and then copying it there.|
+|*publish_webpath*|The web path to "publish_dir". For "/config/www/bloomin8," this is usually "/local/bloomin8." Only the path is configured here, not the server address. You specify the server address via the configuration of *upstream_url* below the image frame. For the image frame, the complete URL would therefore be http://<IP-AND-PORT-OF-HOME-ASSISTANT>/local/bloomin8|
+|*wake_up_hours*|At which time should the picture frame retrieve a new image? Specify in comma-separated hours, e.g., "6,18" for 6:00 and 18:00. The component takes care of the device's firmware bug(?) of waking up too early (e. g. 5:47 instead of 6:00) for up to 30 minutes and then skips to the next time slot (-> do not send 6:00 again, but 18:00).|
 |*orientation*|The orientation of the picture frame - P = portrait format, L = landscape format.|
 
 And for the access token in <secrets.yaml>:
 
 ```yaml
-bloomin8_pull_token: “<YOUR_TOKEN_HERE>”
+bloomin8_pull_token: "<YOUR_TOKEN_HERE>"
 ```
 
 ## Configuration of the BLOOMIN8 picture frame
 
-The [configuration](https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component/blob/main/docs/Schedule_Pull_API.md) contains the crucial services under “1. Device Endpoint: /upstream/pull_settings”. For configuration, the picture frame must be accessible via Wi-Fi, so it must be woken up via the BLOOMIN8 mobile app before the services can be accessed. Once configured, it automatically wakes up at the time set in <next_cron_time> and then connects to the Home Assistant server. 
+The [configuration](https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component/blob/main/docs/Schedule_Pull_API.md) contains the crucial services under "1. Device Endpoint: /upstream/pull_settings". For configuration, the picture frame must be accessible via Wi-Fi, so it must be woken up via the BLOOMIN8 mobile app before the services can be accessed. Once configured, it automatically wakes up at the time set in <next_cron_time> and then connects to the Home Assistant server. 
 
 Example:
 
@@ -89,10 +89,10 @@ PUT http://{device_ip}/upstream/pull_settings
 Content-Type: application/json
 
 {
-    “upstream_on”: true,
-    “upstream_url”: “http://<IP-AND-PORT-OF-HOME-ASSISTANT>”,
-    “token”: “<YOUR_TOKEN_HERE>”,
-    “cron_time”: “2025-11-01T08:30:00Z”
+    "upstream_on": true,
+    "upstream_url": "http://<IP-AND-PORT-OF-HOME-ASSISTANT>",
+    "token": "<YOUR_TOKEN_HERE>",
+    "cron_time": "2025-11-01T08:30:00Z"
 }
 ```
 
@@ -106,19 +106,19 @@ Test whether the custom component works and provides the pull service:
 
 
 ```bash
-curl -i -H “X-Access-Token: <YOUR_TOKEN_HERE>” “http://<IP-AND-PORT-OF-HOME-ASSISTANT>/eink_pull?device_id=abc&pull_id=uuid&cron_time=2026-01-04T09:00:00Z&battery=80”
+curl -i -H "X-Access-Token: <YOUR_TOKEN_HERE>" "http://<IP-AND-PORT-OF-HOME-ASSISTANT>/eink_pull?device_id=abc&pull_id=uuid&cron_time=2026-01-04T09:00:00Z&battery=80"
 ```
 
 Test whether the success call works after the frame has retrieved the image:
 
 ```bash
-curl -i -H “X-Access-Token: <YOUR_TOKEN_HERE>” “http://<IP-AND-PORT-OF-HOME-ASSISTANT>/eink_signal?pull_id=uuid&success=1”
+curl -i -H "X-Access-Token: <YOUR_TOKEN_HERE>" "http://<IP-AND-PORT-OF-HOME-ASSISTANT>/eink_signal?pull_id=uuid&success=1"
 ```
 
-This allows you to “configure” your picture frame:
+This allows you to "configure" your picture frame:
 
 ```bash
-curl -X PUT “http://<IP-OF-BLOOMIN8-FRAME>/upstream/pull_settings” -H "Content-Type: application/json“ -d ”{\“upstream_on\”:true,\“upstream_url\”:\“http://<IP-AND-PORT-OF-HOME-ASSISTANT>\”,\“token\”:\" <YOUR_TOKEN_HERE>\“,\”cron_time\“:\”2026-01-17T05:00:00Z\“}”
+curl -X PUT "http://<IP-OF-BLOOMIN8-FRAME>/upstream/pull_settings" -H "Content-Type: application/json" -d "{\"upstream_on\":true,\"upstream_url\":\"http://<IP-AND-PORT-OF-HOME-ASSISTANT>\",\"token\":\" <YOUR_TOKEN_HERE>\",\"cron_time\":\"2026-01-17T05:00:00Z\"}"
 ```
 
 <cron_time> must be UTC time.
