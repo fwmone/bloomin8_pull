@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import (
+    SensorEntity,
+    SensorDeviceClass,
+    SensorStateClass
+)
 from homeassistant.const import PERCENTAGE
 from homeassistant.helpers.entity import EntityCategory
 
@@ -15,7 +19,10 @@ class Bloomin8BatterySensor(SensorEntity):
     _attr_name = "BLOOMIN8 Battery"
     _attr_unique_id = "bloomin8_battery"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_device_class = SensorDeviceClass.BATTERY
+    _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = PERCENTAGE
+    _attr_suggested_display_precision = 0
     _attr_icon = "mdi:battery"
 
     def __init__(self, hass):

@@ -1,7 +1,7 @@
 {
   "domain": "bloomin8_pull",
   "name": "BLOOMIN8 Pull Endpoint",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "documentation": "https://github.com/fwmone/bloomin8_pull",
   "issue_tracker": "https://github.com/fwmone/bloomin8_pull/issues",  
   "requirements": [],
