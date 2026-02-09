@@ -3,7 +3,7 @@ from __future__ import annotations
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.helpers.entity import EntityCategory
 
-from .const import DOMAIN, STATE_SUCCESS, STATE_LAST_SEEN
+from .const import DOMAIN, STATE_SUCCESS, STATE_LAST_SEEN, STATE_LAST_IMAGE_URL
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
@@ -27,6 +27,7 @@ class Bloomin8LastSuccessBinarySensor(BinarySensorEntity):
     def extra_state_attributes(self):
         return {
             "last_seen": self.hass.data[DOMAIN]["state"].get(STATE_LAST_SEEN),
+            "last_image_url": self.hass.data[DOMAIN]["state"].get(STATE_LAST_IMAGE_URL),
         }
 
     async def async_added_to_hass(self):

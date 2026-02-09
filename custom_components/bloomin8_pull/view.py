@@ -18,7 +18,7 @@ from homeassistant.helpers.storage import Store
 from datetime import datetime, timedelta
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, STATE_BATTERY, STATE_SUCCESS, STATE_LAST_SEEN, STATE_FILE
+from .const import DOMAIN, STATE_BATTERY, STATE_SUCCESS, STATE_LAST_SEEN, STATE_FILE, STATE_ENABLED, DEFAULT_ENABLED, STATE_LAST_IMAGE_URL
 
 def calc_recent_max(n_files: int) -> int:
     # 50% of files, minimum 5, maximum 50
@@ -212,6 +212,9 @@ class Bloomin8PullView(HomeAssistantView):
         except FileNotFoundError:
             files = []
 
+        # https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component/blob/main/docs/Schedule_Pull_API.md tells
+        # to send a body and next_cron_time, which is wrong - 204 responses must not contain a body, so it will be removed
+        # I leave it here for documentation purposes. But when no files are available, the frame will NOT get a new cron time.
         if not files:
             return web.json_response(
                 {
@@ -220,39 +223,64 @@ class Bloomin8PullView(HomeAssistantView):
                     "data": {
                         "next_cron_time": next_utc.replace(microsecond=0).isoformat().replace("+00:00", "Z")
                     }
-                }                ,
+                },
                 status=HTTPStatus.NO_CONTENT,
             )
 
-        chosen = await choose_varied(self.hass, files)
-        src_path = os.path.join(image_dir, chosen)
+        # --- Respect enabled switch
+        enabled = bool(self.hass.data[DOMAIN]["state"].get(STATE_ENABLED, DEFAULT_ENABLED))
+        last_url = self.hass.data[DOMAIN]["state"].get(STATE_LAST_IMAGE_URL)
 
-        # --- Publish under /local/... (served from /config/www) ---
-        os.makedirs(publish_dir, exist_ok=True)
+        if enabled:
+            chosen = await choose_varied(self.hass, files)
+            src_path = os.path.join(image_dir, chosen)
 
-        # We publish a stable filename to keep the device simple:
-        # "current" + original extension, e.g. current.png
-        basename, ext = os.path.splitext(chosen)
-        ext = ext.lower() if ext else ".jpg"
-        published_name = f"{basename}_{orientation}{ext}"
-        dst_path = os.path.join(publish_dir, published_name)
+            # --- Publish under /local/... (served from /config/www) ---
+            os.makedirs(publish_dir, exist_ok=True)
 
-        # Copy is safest across filesystems; very small overhead for e-ink cadence.
+            # We publish a stable filename to keep the device simple:
+            # "current" + original extension, e.g. current.png
+            basename, ext = os.path.splitext(chosen)
+            ext = ext.lower() if ext else ".jpg"
+            published_name = f"{basename}_{orientation}{ext}"
+            dst_path = os.path.join(publish_dir, published_name)
+
+            # Copy is safest across filesystems; very small overhead for e-ink cadence.
+            try:
+                await self.hass.async_add_executor_job(
+                    _publish_image_sync, publish_dir, src_path, dst_path
+                )
+            except Exception as err:
+                _LOGGER.exception("Failed to publish image %s -> %s: %s", src_path, dst_path, err)
+                return web.json_response(
+                    {"status": 500, "type": "ERROR", "message": "Failed to publish image"},
+                    status=HTTPStatus.INTERNAL_SERVER_ERROR,
+                )
+
+            # Build absolute base URL from the incoming request (works behind reverse proxy if headers are correct).
+            # image_url must be absolute for BLOOMIN8.
+            base = f"{request.scheme}://{request.host}"
+            image_url = f"{base}{publish_webpath}/{published_name}"
+
+        if not enabled:
+            image_url = last_url
+
+        # IMPORTANT: keep it in memory state
+        self.hass.data[DOMAIN]["state"][STATE_LAST_IMAGE_URL] = image_url
+
         try:
-            await self.hass.async_add_executor_job(
-                _publish_image_sync, publish_dir, src_path, dst_path
-            )
-        except Exception as err:
-            _LOGGER.exception("Failed to publish image %s -> %s: %s", src_path, dst_path, err)
-            return web.json_response(
-                {"status": 500, "type": "ERROR", "message": "Failed to publish image"},
-                status=HTTPStatus.INTERNAL_SERVER_ERROR,
-            )
+            data = {
+                STATE_BATTERY: self.hass.data[DOMAIN]["state"][STATE_BATTERY],
+                STATE_SUCCESS: self.hass.data[DOMAIN]["state"][STATE_SUCCESS],
+                STATE_LAST_SEEN: self.hass.data[DOMAIN]["state"][STATE_LAST_SEEN],
+                STATE_ENABLED: self.hass.data[DOMAIN]["state"][STATE_ENABLED],
+                STATE_LAST_IMAGE_URL: image_url,
+            }
 
-        # Build absolute base URL from the incoming request (works behind reverse proxy if headers are correct).
-        # image_url must be absolute for BLOOMIN8.
-        base = f"{request.scheme}://{request.host}"
-        image_url = f"{base}{publish_webpath}/{published_name}"
+            # don't block the event loop
+            await self.hass.async_add_executor_job(_write_json_sync, STATE_FILE, data)
+        except Exception:
+            pass        
 
         return web.json_response(
             {
@@ -305,6 +333,8 @@ class Bloomin8SignalView(HomeAssistantView):
                 STATE_BATTERY: self.hass.data[DOMAIN]["state"][STATE_BATTERY],
                 STATE_SUCCESS: self.hass.data[DOMAIN]["state"][STATE_SUCCESS],
                 STATE_LAST_SEEN: self.hass.data[DOMAIN]["state"][STATE_LAST_SEEN],
+                STATE_ENABLED: self.hass.data[DOMAIN]["state"][STATE_ENABLED],
+                STATE_LAST_IMAGE_URL: self.hass.data[DOMAIN]["state"][STATE_LAST_IMAGE_URL],
             }
 
             # don't block the event loop

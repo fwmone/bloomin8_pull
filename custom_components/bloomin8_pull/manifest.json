@@ -1,12 +1,12 @@
 {
   "domain": "bloomin8_pull",
   "name": "BLOOMIN8 Pull Endpoint",
-  "version": "0.1.9",
+  "version": "0.1.11",
   "documentation": "https://github.com/fwmone/bloomin8_pull",
   "issue_tracker": "https://github.com/fwmone/bloomin8_pull/issues",  
   "requirements": [],
   "codeowners": ["@fwmone"],
-  "platforms": ["sensor", "binary_sensor"],
+  "platforms": ["sensor", "binary_sensor", "switch"],
   "integration_type": "service",
   "iot_class": "local_polling"  
 }

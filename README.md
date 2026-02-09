@@ -9,6 +9,9 @@
 - [⚙️ Configuration](#️-configuration)
   - [Configuration of the BLOOMIN8 picture frame](#configuration-of-the-bloomin8-picture-frame)
   - [Testing](#testing)
+- [Pull Control / Vacation Mode](#pull-control--vacation-mode)
+  - [Switch Entity](#switch-entity)
+  - [Behaviour when pulling is disabled](#behaviour-when-pulling-is-disabled)
 - [🚫 Limitations](#-limitations)
 - [📊 Entities](#-entities)
 - [🧠 Application examples](#-application-examples)
@@ -122,6 +125,49 @@ curl -X PUT "http://<IP-OF-BLOOMIN8-FRAME>/upstream/pull_settings" -H "Content-T
 ```
 
 <cron_time> must be UTC time.
+
+# Pull Control / Vacation Mode
+
+The BLOOMIN8 Pull Endpoint can be temporarily disabled using a dedicated switch entity.
+This is useful during vacations or longer absences, where image rotation is not desired.
+
+## Switch Entity
+
+The integration provides the following switch:
+
+- `switch.bloomin8_pull_enabled`
+
+| State | Behaviour |
+|------|-----------|
+| `on` (default) | Normal pull behaviour, images are rotated as usual |
+| `off` | Pulling is disabled, no new images are selected |
+
+The switch state is persisted and survives Home Assistant restarts.
+
+## Behaviour when pulling is disabled
+
+When pulling is disabled and the BLOOMIN8 device calls the `/eink_pull` endpoint:
+
+- no new image is selected
+- the last successfully displayed image is returned again
+- the endpoint does NOT send a HTTP 204 response like required [here](https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component/blob/main/docs/Schedule_Pull_API.md) (see "Case 2: No image available"), because HTTP 204 responses must not contain a body, hence it cannot contain a `next_cron_time`. 
+- the device is instructed to retry at a later time via `next_cron_time`
+
+This ensures that:
+
+- the currently displayed image remains unchanged
+- no images are "skipped" during absence
+- unnecessary image changes and energy usage are avoided
+
+The last displayed image URL is persisted and exposed as an attribute on the binary sensor:
+
+- `binary_sensor.bloomin8_last_pull_success`
+  - attribute: `last_image_url`
+
+This attribute can be used for:
+- diagnostics
+- UI linking (e.g. open the currently displayed image)
+- internal reuse when pulling is disabled
 
 # 🚫 Limitations
 

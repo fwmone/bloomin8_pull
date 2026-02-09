@@ -23,10 +23,13 @@ from .const import (
     DEFAULT_PUBLISH_WEBPATH,
     DEFAULT_WAKE_UP_HOURS,
     DEFAULT_ORIENTATION,
+    DEFAULT_ENABLED,
     STATE_BATTERY,
     STATE_SUCCESS,
     STATE_LAST_SEEN,    
-    STATE_FILE
+    STATE_FILE,
+    STATE_ENABLED,
+    STATE_LAST_IMAGE_URL
 )
 from .view import (
     Bloomin8PullView,
@@ -49,7 +52,7 @@ CONFIG_SCHEMA = vol.Schema(
     extra=vol.ALLOW_EXTRA,
 )
 
-PLATFORMS = ["sensor", "binary_sensor"]
+PLATFORMS = ["sensor", "binary_sensor", "switch"]
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     cfg = config.get(DOMAIN)
@@ -62,6 +65,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         STATE_BATTERY: None,
         STATE_SUCCESS: None,
         STATE_LAST_SEEN: None,
+        STATE_ENABLED: DEFAULT_ENABLED,
+        STATE_LAST_IMAGE_URL: None,
     }
 
     state = hass.data[DOMAIN]["state"]
@@ -72,6 +77,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             state[STATE_BATTERY] = saved.get(STATE_BATTERY)
             state[STATE_SUCCESS] = saved.get(STATE_SUCCESS)
             state[STATE_LAST_SEEN] = saved.get(STATE_LAST_SEEN)
+            state[STATE_LAST_IMAGE_URL] = saved.get(STATE_LAST_IMAGE_URL)
+            state[STATE_ENABLED] = saved.get(STATE_ENABLED, DEFAULT_ENABLED)
         except Exception:
             pass
 

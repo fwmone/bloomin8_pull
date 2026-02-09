@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.11] - 2026-02-09
+
+### Added
+- Added `switch.bloomin8_pull_enabled` to enable or disable image pulling
+- Pull disabling allows pausing image rotation (e.g. during vacations)
+- Switch state is persisted across Home Assistant restarts
+
+### Changed
+- `/eink_pull` endpoint now respects the pull enabled state
+- When pulling is disabled, the endpoint responds without serving a new image
+
 ## [0.1.10] - 2026-01-30
 
 ### Changed
