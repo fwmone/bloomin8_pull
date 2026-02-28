@@ -34,7 +34,7 @@ The integration is aimed in particular at users who do not just want to use BLOO
 
 - Home Assistant **2024.12** or newer. I personally always work on the current version of Home Assistant, so I cannot guarantee compatibility with older versions.
 - The BLOOMIN8 picture frame must be able to access the Home Assistant server.
-- The images to be retrieved must be available on the Home Assistant server, optimized for the frame, which means: in the correct resolution (1600x1200px for the 13.3" frame), in JPEG format, and already adjusted for the Spectra 6 display, e.g., brightened or increased in saturation. In my setup, I synchronize the images from a local [Immich](https://immich.app/) server and then optimize them automatically. I wrote separate scripts for this, which I will post on GitHub when I get a chance. I already published my optimizer [here](https://github.com/fwmone/eink-optimize).
+- The images to be retrieved must be available on the Home Assistant server, optimized for the frame, which means: in the correct resolution (1600x1200px for the 13.3" frame), in JPEG format, and already adjusted for the Spectra 6 display, e.g., brightened or increased in saturation. In my setup, I synchronize the images from a local [Immich](https://immich.app/) server and then optimize them automatically. I wrote a [script](https://github.com/fwmone/home-assistant-gists/blob/main/immich_sync_favorites/immich_sync_favorites.sh) for this. [Here](https://github.com/fwmone/home-assistant-gists?tab=readme-ov-file#immich_sync_favorites) are the usage instructions. I also published my optimizer [here](https://github.com/fwmone/eink-optimize).
 - The images must be in <image_dir> (see configuration below) as JPEGs and end with the suffix ".jpg".
 
 # 📦 Installation
@@ -187,20 +187,19 @@ The entities can be used directly in dashboards, automations, or scripts.
 
 ![image](./README/homeassistant-dashboard-example.jpg)
 
-Shows last pulled image, battery value and last pull time. I use the super handy [button cards](https://github.com/custom-cards/button-card), that need to be installed beforehand.
+Shows last provided image, battery value, last frame sync, last push time and next sync time. I use the super handy [button cards](https://github.com/custom-cards/button-card), that need to be installed beforehand.
 
 ```yaml
 type: grid
 cards:
   - type: heading
-    icon: mdi:coat-rack
-    heading: Diele
+    icon: mdi:desk
+    heading: Empore
     heading_style: title
   - type: markdown
-    content: |-
-      <img src="{{
-          state_attr('binary_sensor.bloomin8_last_pull_success','last_image_url')
-          }}"
+    content: >-
+      <img src="/local/picture-frames/paperlesspaper/{{
+      state_attr('sensor.paperlesspaper_push_status','published_name') }}"
       height="400">
     card_mod:
       style: |
@@ -213,10 +212,9 @@ cards:
       grid-template-columns: 1fr 1fr
       grid-gap: 6px
       margin: "-8px 0 0 0;"
-      card_margin: 0 0 0 0;
     cards:
       - type: custom:button-card
-        entity: sensor.bloomin8_battery
+        entity: sensor.paperlesspaper_push_battery
         name: Batterie
         show_state: true
         show_label: true
@@ -243,11 +241,114 @@ cards:
         tap_action:
           action: more-info
       - type: custom:button-card
-        entity: sensor.bloomin8_letzter_pull
-        name: Letzter Pull
+        entity: sensor.paperlesspaper_push_last_reachable
+        name: Letzter Sync
         show_state: true
         show_label: true
         layout: icon_name_state2nd
+        state_display: |
+          [[[
+            const s = states['sensor.paperlesspaper_push_last_reachable']?.state;
+
+            if (!s || ['unknown','unavailable','none','null',''].includes(s)) {
+              return '–';
+            }
+
+            const d = new Date(s);     // ISO / UTC → lokale Zeit automatisch
+            if (isNaN(d)) return '–';
+
+            return d.toLocaleTimeString('de-DE', {
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          ]]]    
+        styles:
+          icon:
+            - height: 32px
+          card:
+            - border-radius: 28px
+            - padding: 10px
+            - height: 110px
+          grid:
+            - grid-template-areas: "\"i\" \"n\" \"s\""
+            - grid-template-columns: 1fr
+            - grid-template-rows: 1fr min-content min-content
+          name:
+            - justify-self: center
+            - font-weight: bold
+            - font-size: 0.9em
+          state:
+            - justify-self: center
+            - font-size: 12px
+            - padding-top: 1px
+        tap_action:
+          action: more-info
+      - type: custom:button-card
+        entity: sensor.paperlesspaper_push_status
+        name: Letzter Push
+        show_state: true
+        show_label: true
+        layout: icon_name_state2nd
+        state_display: |
+          [[[
+            const s = states['sensor.paperlesspaper_push_status']?.state;
+
+            if (!s || ['unknown','unavailable','none','null',''].includes(s)) {
+              return '–';
+            }
+
+            const d = new Date(s);     // ISO / UTC → lokale Zeit automatisch
+            if (isNaN(d)) return '–';
+
+            return d.toLocaleTimeString('de-DE', {
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          ]]]
+        styles:
+          icon:
+            - height: 32px
+          card:
+            - border-radius: 28px
+            - padding: 10px
+            - height: 110px
+          grid:
+            - grid-template-areas: "\"i\" \"n\" \"s\""
+            - grid-template-columns: 1fr
+            - grid-template-rows: 1fr min-content min-content
+          name:
+            - justify-self: center
+            - font-weight: bold
+            - font-size: 0.9em
+          state:
+            - justify-self: center
+            - font-size: 12px
+            - padding-top: 1px
+        tap_action:
+          action: more-info
+      - type: custom:button-card
+        entity: sensor.paperlesspaper_push_next_device_sync
+        name: Nächster Sync
+        show_state: true
+        show_label: true
+        layout: icon_name_state2nd
+        state_display: |
+          [[[
+            const s = states['sensor.paperlesspaper_push_next_device_sync']?.state;
+
+            if (!s || ['unknown','unavailable','none','null',''].includes(s)) {
+              return '–';
+            }
+
+            const d = new Date(s);     // ISO / UTC → lokale Zeit automatisch
+            if (isNaN(d)) return '–';
+
+            return d.toLocaleTimeString('de-DE', {
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          ]]]    
+           
         styles:
           icon:
             - height: 32px
@@ -271,8 +372,6 @@ cards:
           action: more-info
 column_span: 2
 ```
-
-
 
 # 🧠 Application examples
 
