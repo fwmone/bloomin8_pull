@@ -23,7 +23,6 @@ class Bloomin8BatterySensor(SensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_suggested_display_precision = 0
-    _attr_icon = "mdi:battery"
 
     def __init__(self, hass):
         self.hass = hass

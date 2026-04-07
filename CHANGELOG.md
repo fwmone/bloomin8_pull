@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.13] - 2026-04-07
+
+### Changed
+- removed ```bloomin8_battery``` icon to use Home Assistant default icon
+
 ## [0.1.12] - 2026-02-09
 
 ### Changed
