@@ -21,8 +21,8 @@ from homeassistant.util import dt as dt_util
 from .const import DOMAIN, STATE_BATTERY, STATE_SUCCESS, STATE_LAST_SEEN, STATE_FILE, STATE_ENABLED, DEFAULT_ENABLED, STATE_LAST_IMAGE_URL
 
 def calc_recent_max(n_files: int) -> int:
-    # 50% of files, minimum 5, maximum 50
-    return max(5, min(50, int(round(n_files * 0.5))))
+    # 50% of files, minimum 5, maximum 250
+    return max(5, min(250, int(round(n_files * 0.5))))
 
 def clear_publish_dir(path: str) -> None:
     if not os.path.isdir(path):
