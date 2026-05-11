@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import datetime as dt
+from datetime import datetime as dt, timezone
 import logging
 import os
 import random
@@ -212,9 +212,6 @@ class Bloomin8PullView(HomeAssistantView):
         except FileNotFoundError:
             files = []
 
-        # https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component/blob/main/docs/Schedule_Pull_API.md tells
-        # to send a body and next_cron_time, which is wrong - 204 responses must not contain a body, so it will be removed
-        # I leave it here for documentation purposes. But when no files are available, the frame will NOT get a new cron time.
         if not files:
             return web.json_response(
                 {
@@ -224,7 +221,7 @@ class Bloomin8PullView(HomeAssistantView):
                         "next_cron_time": next_utc.replace(microsecond=0).isoformat().replace("+00:00", "Z")
                     }
                 },
-                status=HTTPStatus.NO_CONTENT,
+                status=HTTPStatus.OK,
             )
 
         # --- Respect enabled switch
@@ -325,7 +322,7 @@ class Bloomin8SignalView(HomeAssistantView):
 
         self.hass.data[DOMAIN]["state"][STATE_SUCCESS] = success_val
         self.hass.data[DOMAIN]["state"][STATE_LAST_SEEN] = (
-            dt.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+            dt.now(timezone.utc).replace(microsecond=0).isoformat()
         )
 
         try:
@@ -347,7 +344,7 @@ class Bloomin8SignalView(HomeAssistantView):
             ent.async_write_ha_state()
 
         _LOGGER.debug(
-            "eink_signal request: pull_id=%s success=%s",
+            "eink_signal request: pull_id=%s success=%s remote=%s",
             pull_id, success, request.remote
         )
 

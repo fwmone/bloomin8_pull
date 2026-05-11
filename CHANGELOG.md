@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.15] - 2026-05-11
+
+### Changed
+- Returning HTTP 200 (with status 204) when there is no new picture available so that frame still gets next_cron_time. HTTP 204 may not contain additional information.
+- Fixing wrong logger output
+- Removing deprecated python dt.datetime.utcnow() call
+
 ## [0.1.14] - 2026-04-25
 
 ### Changed
