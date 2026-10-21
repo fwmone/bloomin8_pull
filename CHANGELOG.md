@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.3] - 2026-10-21
+
+### Added
+- **Local brand assets:** Added native support for Home Assistant 2026.3+ by bundling integration icons directly in `custom_components/bloomin8_pull/brand/`.
+- Included standard and high-resolution (`@2x`) icons for both light and dark themes.
+- Brand assets are now served locally by Home Assistant, without requiring the external Home Assistant Brands repository.
+
+### Changed
+- No changes to integration functionality or configuration.
+
+### Contributors
+- Special thanks to [@frenck](https://github.com/frenck) for contributing the local brand assets in [PR #2](https://github.com/fwmone/bloomin8_pull/pull/2).
+
 ## [0.2.2] - 2026-09-26
 
 ### Changed
